@@ -1,0 +1,72 @@
+#!/usr/bin/expect
+set host "localhost"
+set port 2525
+set from "test@netways.de"
+set to "test@netways.de"
+
+spawn telnet $host $port
+
+expect "failed" {
+	send_user "$host: connect failed\n"
+	exit
+} "2?? *" {
+} "4?? *" {
+	exit
+} "refused" {
+	send_user "$host: connect refused\n"
+	exit
+} "closed" {
+	send_user "$host: connect closed\n"
+	exit
+} timeout {
+	send_user "$host: connect to port $port timeout\n"
+	exit
+}
+
+send "HELO foo.com\r"
+expect "2?? *" {
+} "5?? *" {
+	exit
+} "4?? *" {
+	exit
+}
+
+send "MAIL FROM: <$from>\r"
+expect "2?? *" {
+} "5?? *" {
+	exit
+} "4?? *" {
+	exit
+}
+
+send "RCPT TO: <$to>\r"
+expect "2?? *" {
+} "5?? *" {
+	exit
+} "4?? *" {
+	exit
+}
+
+send "DATA\r"
+expect "3?? *" {
+} "5?? *" {
+	exit
+} "4?? *" {
+	exit
+}
+
+send "From: $from\r"
+send "To: $to\r"
+send "Subject: test\r"
+send "\r"
+send "This is a test message\r"
+send ".\r"
+expect "2?? *" {
+} "5?? *" {
+	exit
+} "4?? *" {
+	exit
+}
+
+send "QUIT\r"
+exit

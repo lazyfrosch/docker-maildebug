@@ -1,0 +1,16 @@
+#!/bin/bash
+
+do_exit=0
+
+trap 'do_exit=1' INT TERM
+
+postfix start
+
+while [ "$do_exit" -ne 1 ]; do
+    sleep 1
+    if ! pidof /usr/lib/postfix/sbin/master &>/dev/null; then
+      do_exit=1
+    fi
+done
+
+postfix stop

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e -u
+
+MAPS=(transport virtual virtual_domains)
+
+echo "$HOSTNAME" >/etc/mailname
+
+for map in "${MAPS[@]}"; do
+    mapfile=/etc/postfix/"$map"
+    echo "Updating postfix map $mapfile"
+    postmap "$mapfile"
+done
+
+exec "$@"
